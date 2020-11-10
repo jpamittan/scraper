@@ -17,6 +17,8 @@ class HomeController extends Controller
 
     public function index()
     {
+        Result::truncate();
+        Snov::truncate();
         return view('index');
     }
 
