@@ -17,9 +17,10 @@ class HomeController extends Controller
 
     public function index()
     {
-        Result::truncate();
-        Snov::truncate();
-        return view('index');
+        // Result::truncate();
+        // Snov::truncate();
+        // return view('index');
+        return view('maintenance');
     }
 
     public function parseImport(CsvImportRequest $request)
@@ -183,6 +184,13 @@ class HomeController extends Controller
         return view('snov', [
             'results' => $results,
             'snov_data' => $snovData
+        ]);
+    }
+
+    public function download()
+    {
+        return view('download', [
+
         ]);
     }
 }

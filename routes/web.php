@@ -21,4 +21,6 @@ Route::post('/parseImport', [HomeController::class, 'parseImport'])->name('home.
 Route::post('/processImport', [HomeController::class, 'processImport'])->name('home.processImport');
 Route::post('/processSnovIo', [HomeController::class, 'processSnovIo'])->name('home.processSnovIo');
 Route::get('/results', [HomeController::class, 'results'])->name('home.results');
+Route::get('/download', [HomeController::class, 'download'])->name('home.download');
 Route::get('/export', [ExportController::class, 'export'])->name('export.export');
+

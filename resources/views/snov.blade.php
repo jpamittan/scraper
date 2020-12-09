@@ -22,9 +22,7 @@
                 </thead>
                 <tbody>
                     @foreach ($results as $result)
-                        <?php
-                            $json_data = json_decode($result->json_data);
-                        ?>
+                        <?php $json_data = json_decode($result->json_data); ?>
                         @if (property_exists($json_data, 'maps_results'))
                             @foreach ($json_data->maps_results as $mr)
                                 <tr>

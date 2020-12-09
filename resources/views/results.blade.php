@@ -27,7 +27,17 @@
                         <?php $hasCheckList = false; ?>
                         @foreach ($company_names as $key => $company_name)
                             @foreach ($maps_results as $maps_result)
-                                @if ($maps_result->query->q == $company_name)
+                                @if (array_key_exists('error', $maps_result))
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>{{ $company_name }}</td>
+                                        <td colspan="11">
+                                            <div class="alert alert-danger" role="alert">
+                                                Blocked, cannot scrape information.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @elseif ($maps_result->query->q == $company_name)
                                     @if (property_exists($maps_result, 'maps_results'))
                                         @foreach ($maps_result->maps_results as $mr)
                                             <tr>
@@ -50,6 +60,7 @@
                                                 <td>{{ $mr->coordinates->latitude ?? "" }}</td>
                                                 <td>{{ $mr->coordinates->longitude ?? "" }}</td>
                                             </tr>
+                                            <!-- Get only first scrape result -->
                                             @break
                                         @endforeach
                                     @else
