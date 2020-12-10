@@ -28,7 +28,7 @@
     <body class="antialiased">
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#"><img class="logo-menu" src="https://synchronosure.com/wp-content/uploads/2020/09/synchronosure_blue_trans_logo.png"/></a>
+            <a class="navbar-brand" href="{{ route('home.index') }}"><img class="logo-menu" src="https://synchronosure.com/wp-content/uploads/2020/09/synchronosure_blue_trans_logo.png"/></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

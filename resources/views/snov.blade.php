@@ -106,7 +106,7 @@
             </table>
             <div class="d-table mb-3">
                 <a href="{{ route('home.index') }}" class="btn btn-info"><i class="fab fa-searchengin mr-1"></i> Search again</a>
-                <a href="{{ route('export.export') }}" class="btn btn-success ml-1"><i class="far fa-file-excel mr-1"></i> Export</a>
+                <a href="{{ route('export.export', ['id' => $result->id]) }}" class="btn btn-success ml-1"><i class="far fa-file-excel mr-1"></i> Export</a>
             </div>
         </div>
     </div>
