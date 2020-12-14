@@ -24,7 +24,7 @@ class ScrapeService
             $searchQuery = str_replace("  ", " ", $searchQuery);
             $result = Result::where('company_name', $searchQuery)->first();
             if ($result) {
-                $response = json_decode($result->json_data);
+                $response = $result->json_data;
             } else {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
