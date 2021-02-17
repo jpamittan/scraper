@@ -81,8 +81,9 @@ class ScrapeService
         $params = [
             'access_token' => $token,
             'domain'       => $domain,
-            'type'         => 'all',
-            'limit'        => 100,
+            'type'         => 'email',
+            'status'       => 'verified',
+            'limit'        => 50,
             'lastId'       => 0
         ];
         $params = http_build_query($params);
