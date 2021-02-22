@@ -77,9 +77,14 @@
                                     </div>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($data->status == "done")
-                                    <a href="{{ route('export.export', ['id' => $data->id]) }}"><i class="far fa-file-excel"></i> Download</a>
+                                    <a href="{{ route('export.export', ['listname' => $data->id]) }}" class="text-decoration-none ml-1 mr-1" title="Download">
+                                        <i class="fas fa-file-download text-primary"></i>
+                                    </a>
+                                    <a href="#" data-href="{{ route('home.delete', ['listname' => $data->id]) }}" class="text-decoration-none ml-1 mr-1" title="Delete" data-toggle="modal" data-target="#confirm-delete">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </a>
                                 @else
                                     Please wait...
                                 @endif
@@ -93,4 +98,30 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b>Please confirm</b>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete the record?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger btn-ok">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#confirm-delete').on('show.bs.modal', function(e) {
+                $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+            });
+        });
+    </script>
+@endpush

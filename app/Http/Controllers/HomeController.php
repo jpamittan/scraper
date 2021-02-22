@@ -76,11 +76,19 @@ class HomeController extends Controller
                 DB::raw('COUNT(results.listnames_id) as done')
             ])
             ->groupBy('listnames.id')
-            ->paginate(10);
+            ->orderBy('created_at', 'DESC')
+            ->paginate(15);
 
         return view('download', [
             'listnames' => $listnames,
         ]);
+    }
+
+    public function delete(Listname $listname)
+    {
+        $listname->delete();
+
+        return redirect()->route('home.download');
     }
 
     public function results()
