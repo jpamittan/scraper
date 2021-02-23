@@ -23,7 +23,10 @@ class ScrapeService
             $searchQuery = trim($searchQuery);
             $searchQuery = str_replace("  ", " ", $searchQuery);
             $result = Result::where('company_name', $searchQuery)->first();
-            if ($result) {
+            if (
+                $result &&
+                $result->json_data != '{"error":"Not enough requests."}'
+            ) {
                 $response = $result->json_data;
             } else {
                 $ch = curl_init();
@@ -63,12 +66,28 @@ class ScrapeService
                         $domain = str_replace($removeChars, "", $record->url);
                         $domainArr = explode('/', $domain);
                         $domainName = $domainArr[0];
-                        $snov = Snov::create([
-                            'results_id' => $result->id,
-                            'company_name' => $result->company_name,
-                            'domain_name' => $domainName,
-                            'snov_data' => json_encode($this->getDomainSearch($domainName))
-                        ]);
+                        $snovExist = Snov::where('domain_name', $domainName)->first();
+                        if (
+                            $snovExist &&
+                            $snovExist->snov_data != '{"success":false,"message":"Sorry, you ran out of credits, please order more credits"}'
+                        ) {
+                            $snov = Snov::create([
+                                'results_id' => $result->id,
+                                'company_name' => $result->company_name,
+                                'domain_name' => $domainName,
+                                'snov_data' => $snovExist->snov_data
+                            ]);
+                        } else {
+                            $snovData = json_encode($this->getDomainSearch($domainName));
+                            if ($snovData != '{"success":false,"message":"Sorry, you ran out of credits, please order more credits"}') {
+                                $snov = Snov::create([
+                                    'results_id' => $result->id,
+                                    'company_name' => $result->company_name,
+                                    'domain_name' => $domainName,
+                                    'snov_data' => $snovData
+                                ]);
+                            }
+                        }
                     }
                 }
             }
