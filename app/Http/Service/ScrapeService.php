@@ -102,7 +102,7 @@ class ScrapeService
             'domain'       => $domain,
             'type'         => 'email',
             'status'       => 'verified',
-            'limit'        => 50,
+            'limit'        => 20,
             'lastId'       => 0
         ];
         $params = http_build_query($params);
