@@ -22,7 +22,9 @@ class ScrapeService
             }
             $searchQuery = trim($searchQuery);
             $searchQuery = str_replace("  ", " ", $searchQuery);
-            $result = Result::where('company_name', $searchQuery)->first();
+            $result = Result::where('company_name', $searchQuery)
+                ->latest()
+                ->first();
             if (
                 $result &&
                 $result->json_data != '{"error":"Not enough requests."}'
@@ -66,7 +68,9 @@ class ScrapeService
                         $domain = str_replace($removeChars, "", $record->url);
                         $domainArr = explode('/', $domain);
                         $domainName = $domainArr[0];
-                        $snovExist = Snov::where('domain_name', $domainName)->first();
+                        $snovExist = Snov::where('domain_name', $domainName)
+                            ->latest()
+                            ->first();
                         if (
                             $snovExist &&
                             $snovExist->snov_data != '{"success":false,"message":"Sorry, you ran out of credits, please order more credits"}'
