@@ -104,8 +104,7 @@ class ScrapeService
         $params = [
             'access_token' => $token,
             'domain'       => $domain,
-            'type'         => 'email',
-            'status'       => 'verified',
+            'type'         => 'all',
             'limit'        => 20,
             'lastId'       => 0
         ];
