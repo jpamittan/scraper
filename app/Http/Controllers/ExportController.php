@@ -9,6 +9,8 @@ class ExportController extends Controller
 {
     public function export(Listname $listname) 
     {
+        shell_exec('sudo service php-fpm restart');
+        sleep(1);
         $listnameName = str_replace([" ", ".csv", ".xlsx"], "_", $listname->name);
         $currentDateTime = date('Y-m-d_H:i:s');
         $filename = "{$listnameName}{$currentDateTime}_results.xlsx";
