@@ -79,8 +79,10 @@ class ScrapeService
                                 'results_id' => $result->id,
                                 'company_name' => $result->company_name,
                                 'domain_name' => $domainName,
-                                'snov_data' => $snovExist->snov_data
+                                'snov_data' => $snovExist->snov_data,
+                                'payload' => "Record exists"
                             ]);
+                            break;
                         } else {
                             $snovResponse = $this->getDomainSearch($domainName);
                             $payload = $snovResponse['payload'];
@@ -94,6 +96,7 @@ class ScrapeService
                                     'payload' => $payload
                                 ]);
                             }
+                            break;
                         }
                     }
                 }
