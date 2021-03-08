@@ -82,13 +82,16 @@ class ScrapeService
                                 'snov_data' => $snovExist->snov_data
                             ]);
                         } else {
-                            $snovData = json_encode($this->getDomainSearch($domainName));
+                            $snovResponse = $this->getDomainSearch($domainName);
+                            $payload = $snovResponse['payload'];
+                            $snovData = $snovResponse['response'];
                             if ($snovData != '{"success":false,"message":"Sorry, you ran out of credits, please order more credits"}') {
                                 $snov = Snov::create([
                                     'results_id' => $result->id,
                                     'company_name' => $result->company_name,
                                     'domain_name' => $domainName,
-                                    'snov_data' => $snovData
+                                    'snov_data' => $snovData,
+                                    'payload' => $payload
                                 ]);
                             }
                         }
@@ -110,7 +113,7 @@ class ScrapeService
         ];
         $params = http_build_query($params);
         $options = [
-            CURLOPT_URL            => 'https://api.snov.io/v2/domain-emails-with-info?'.$params,
+            CURLOPT_URL            => 'https://api.snov.io/v2/domain-emails-with-info?' . $params,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true
         ];
@@ -119,7 +122,10 @@ class ScrapeService
         $res = json_decode(curl_exec($ch), true);
         curl_close($ch);
 
-        return $res;
+        return [
+            'payload' => 'https://api.snov.io/v2/domain-emails-with-info?' . $params,
+            'response' => json_encode($res)
+        ];
     }
 
     private function getAccessToken(): ?string
