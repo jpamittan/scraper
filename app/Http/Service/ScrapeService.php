@@ -3,6 +3,7 @@
 namespace App\Http\Service;
 
 use App\Models\{
+    GoogleMapData,
     Listname,
     Result,
     Snov
@@ -25,33 +26,85 @@ class ScrapeService
             $result = Result::where('company_name', $searchQuery)
                 ->latest()
                 ->first();
-            if (
-                $result &&
-                $result->json_data != '{"error":"Not enough requests."}'
-            ) {
-                $response = $result->json_data;
+            $json_data = [
+                "query" => [
+                    "q" => $searchQuery,
+                    "tbm" => "lcl",
+                    "device" => "desktop",
+                    "location" => "United States",
+                    "url" => ""
+                ],
+                "no_results_auto_correct" => "",
+                "related_searches" => []
+            ];
+            if ($result) {
+                $json_data = $result->json_data;
             } else {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 $data = [
-                    "q" => $searchQuery,
-                    "tbm" => "lcl",
-                    "device" => "desktop",
-                    "location" => "United States",
+                    "key" => "AIzaSyARJtsnxbd0yCBVqbMg5IGW0wuAUcVyfk4",
+                    "query" => str_replace(" ", "+", $searchQuery),
                 ];
-                curl_setopt($ch, CURLOPT_URL, "https://app.zenserp.com/api/v2/search?" . http_build_query($data));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    "Content-Type: application/json",
-                    "apikey: 8b317920-fe7d-11ea-8074-a74c24313909",
-                ));
+                curl_setopt($ch, CURLOPT_URL, "https://maps.googleapis.com/maps/api/place/textsearch/json?" . http_build_query($data));
                 $response = curl_exec($ch);
                 curl_close($ch);
+                GoogleMapData::create([
+                    'listnames_id' => $listname->id,
+                    'company_name' => $searchQuery,
+                    'key' => "place/textsearch",
+                    'payload' => json_encode(json_decode($response))
+                ]);
+                $placeResult = json_decode($response, true);
+                if (!empty($placeResult['results'])) {
+                    $placeId = $placeResult['results'][0]['place_id'];
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    $data = [
+                        "key" => "AIzaSyARJtsnxbd0yCBVqbMg5IGW0wuAUcVyfk4",
+                        "fields" => "name,rating,formatted_phone_number,formatted_address,website,geometry,place_id,types,url,reviews",
+                        "place_id" => $placeId
+                    ];
+                    curl_setopt($ch, CURLOPT_URL, "https://maps.googleapis.com/maps/api/place/details/json?" . http_build_query($data));
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+                    GoogleMapData::create([
+                        'listnames_id' => $listname->id,
+                        'company_name' => $searchQuery,
+                        'key' => "place/details",
+                        'payload' => json_encode(json_decode($response))
+                    ]);
+                    $placeDetailsResult = json_decode($response, true);
+                    $json_data["maps_results"] = [
+                        [
+                            "coordinates" => [
+                                "latitude" => $placeDetailsResult['result']['geometry']['location']['lat'],
+                                "longitude" => $placeDetailsResult['result']['geometry']['location']['lng']
+                            ],
+                            "place_id" => $placeDetailsResult['result']['place_id'],
+                            "title" => $placeDetailsResult['result']['name'],
+                            "url" => $placeDetailsResult['result']['website'],
+                            "paid" => false,
+                            "address" => $placeDetailsResult['result']['formatted_address'],
+                            "directions" => [
+                                "url" => "",
+                                "address_parsed" => ""
+                            ],
+                            "phone" => $placeDetailsResult['result']['formatted_phone_number'],
+                            "hours" => "",
+                            "type" => $placeDetailsResult['result']['types'][0],
+                            "stars" => $placeDetailsResult['result']['rating'],
+                            "reviews" => count($placeDetailsResult['result']['reviews']),
+                        ]
+                    ];
+                }
             }
             $saveData = Result::create([
                 'listnames_id' => $listname->id,
                 'company_name' => $searchQuery,
-                'json_data' => $response
+                'json_data' => json_encode($json_data)
             ]);
             $this->snovio($saveData);
         }
@@ -133,23 +186,27 @@ class ScrapeService
 
     private function getAccessToken(): ?string
     {
-        $params = [
-            'grant_type'    => 'client_credentials',
-            'client_id'     => '65ba79ccd6d70b13bbd1de748ee3e6c6',
-            'client_secret' => 'da044702c3fd8c5f13cf426ab85b75f0'
-        ];
-        $options = [
-            CURLOPT_URL            => 'https://api.snov.io/v1/oauth/access_token',
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $params,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true
-        ];
-        $ch = curl_init();
-        curl_setopt_array($ch, $options);
-        $res = json_decode(curl_exec($ch), true);
-        curl_close($ch);
-    
-        return $res['access_token'];
+        $token = null;
+        while (!$token) {
+            $params = [
+                'grant_type'    => 'client_credentials',
+                'client_id'     => '65ba79ccd6d70b13bbd1de748ee3e6c6',
+                'client_secret' => 'da044702c3fd8c5f13cf426ab85b75f0'
+            ];
+            $options = [
+                CURLOPT_URL            => 'https://api.snov.io/v1/oauth/access_token',
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $params,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true
+            ];
+            $ch = curl_init();
+            curl_setopt_array($ch, $options);
+            $res = json_decode(curl_exec($ch), true);
+            curl_close($ch);
+            $token = $res['access_token'];
+        }
+
+        return $token;
     }
 }
