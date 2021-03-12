@@ -80,23 +80,23 @@ class ScrapeService
                     $json_data["maps_results"] = [
                         [
                             "coordinates" => [
-                                "latitude" => $placeDetailsResult['result']['geometry']['location']['lat'],
-                                "longitude" => $placeDetailsResult['result']['geometry']['location']['lng']
+                                "latitude" => $placeDetailsResult['result']['geometry']['location']['lat'] ?? "",
+                                "longitude" => $placeDetailsResult['result']['geometry']['location']['lng'] ?? ""
                             ],
-                            "place_id" => $placeDetailsResult['result']['place_id'],
-                            "title" => $placeDetailsResult['result']['name'],
-                            "url" => $placeDetailsResult['result']['website'],
+                            "place_id" => $placeDetailsResult['result']['place_id'] ?? "",
+                            "title" => $placeDetailsResult['result']['name'] ?? "",
+                            "url" => $placeDetailsResult['result']['website'] ?? "",
                             "paid" => false,
-                            "address" => $placeDetailsResult['result']['formatted_address'],
+                            "address" => $placeDetailsResult['result']['formatted_address'] ?? "",
                             "directions" => [
                                 "url" => "",
                                 "address_parsed" => ""
                             ],
-                            "phone" => $placeDetailsResult['result']['formatted_phone_number'],
+                            "phone" => $placeDetailsResult['result']['formatted_phone_number'] ?? "",
                             "hours" => "",
-                            "type" => $placeDetailsResult['result']['types'][0],
-                            "stars" => $placeDetailsResult['result']['rating'],
-                            "reviews" => count($placeDetailsResult['result']['reviews']),
+                            "type" => $placeDetailsResult['result']['types'][0] ?? "",
+                            "stars" => $placeDetailsResult['result']['rating'] ?? "",
+                            "reviews" => count($placeDetailsResult['result']['reviews']) ?? "",
                         ]
                     ];
                 }
