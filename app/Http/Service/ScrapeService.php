@@ -96,7 +96,7 @@ class ScrapeService
                             "hours" => "",
                             "type" => $placeDetailsResult['result']['types'][0] ?? "",
                             "stars" => $placeDetailsResult['result']['rating'] ?? "",
-                            "reviews" => (isset($placeDetailsResult['result']['reviews'])) 
+                            "reviews" => (!empty($placeDetailsResult['result']['reviews'])) 
                                 ? count($placeDetailsResult['result']['reviews']) 
                                 : 0,
                         ]
